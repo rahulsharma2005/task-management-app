@@ -1,23 +1,37 @@
-# Task Management App — Backend
+# Task Management App — Full Stack (Spring Boot + React)
 
-A RESTful backend for a task management application, built with **Spring Boot** and **PostgreSQL**. Supports organizing tasks into task lists, with full CRUD operations for both.
+A full-stack task management application with a **Spring Boot REST backend** and a modern **React (JavaScript)** frontend. Supports organizing tasks into task lists, tracking progress, filtering by priority and status, with full CRUD operations.
+
+---
 
 ## Tech Stack
 
-- **Java 21**
+### Backend
+- **Java 21 / OpenJDK**
 - **Spring Boot 3.3.5**
 - **Spring Data JPA** (Hibernate)
-- **PostgreSQL** (containerized with Docker)
+- **PostgreSQL** (Docker) & **H2 Database** (local file-persisted dev profile)
 - **Maven**
-- **Docker & Docker Compose**
+
+### Frontend (React + JavaScript)
+- **React 18** (JavaScript / JSX)
+- **Tailwind CSS**
+- **Lucide Icons**
+- **Vite & Axios**
+- **Embedded SPA Mode**: Zero-setup React UI served directly by Spring Boot at `http://localhost:8080/`.
+
+---
 
 ## Features
 
-- Create, read, update, and delete **Task Lists**
-- Create and list **Tasks** nested within a Task List (`OneToMany` relationship)
-- DTO-based architecture with dedicated mapper classes for clean separation between API and persistence layers
-- Global exception handling for consistent error responses
-- Dockerized PostgreSQL database for easy local setup
+- **Task Lists**: Create, read, update, and delete task lists with auto cascade cleanup of child tasks.
+- **Tasks**: Create, view, update, and delete tasks nested within each list.
+- **Live Progress Tracking**: Dynamic completion rate calculation and visual progress indicators.
+- **Priority & Status**: Categorize tasks as `HIGH`, `MEDIUM`, or `LOW`, and toggle between `OPEN` and `CLOSED`.
+- **Search & Filter**: Search by title or description; filter by status or priority.
+- **CORS & Dual-Route Support**: Seamlessly supports both `/task-lists` and `/api/task-lists` prefixes.
+
+---
 
 ## API Endpoints
 
@@ -30,54 +44,44 @@ A RESTful backend for a task management application, built with **Spring Boot** 
 | PUT | `/task-lists/{task_list_id}` | Update a task list |
 | DELETE | `/task-lists/{task_list_id}` | Delete a task list |
 
-### Tasks (nested under a Task List)
+### Tasks
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/task-lists/{task_list_id}/tasks` | Get all tasks in a task list |
-| POST | `/task-lists/{task_list_id}/tasks` | Create a new task in a task list |
-
-## Architecture
-
-The project follows a layered architecture:
-
-```
-Controller  →  Service  →  Repository  →  Database
-     ↓             ↓
-   DTOs  ←—  Mapper
-```
-
-- **Controllers** — handle HTTP requests and responses
-- **Services** — contain business logic
-- **Repositories** — Spring Data JPA interfaces for database access
-- **DTOs & Mappers** — decouple the API contract from internal JPA entities
-- **Entities** — `TaskList` and `Task`, connected via a `OneToMany` / `ManyToOne` relationship
-
-## Running Locally
-
-**Prerequisites:** JDK 21, Docker
-
-```bash
-# Start PostgreSQL
-docker compose up -d
-
-# Run the application
-./mvnw spring-boot:run
-```
-
-The API will be available at `http://localhost:8080`.
-
-## Example Usage
-
-```bash
-# Create a task list
-curl -X POST http://localhost:8080/task-lists \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Work", "description": "Work-related tasks"}'
-
-# Get all task lists
-curl http://localhost:8080/task-lists
-```
+| POST | `/task-lists/{task_list_id}/tasks` | Create a new task |
+| GET | `/task-lists/{task_list_id}/tasks/{task_id}` | Get a single task |
+| PUT | `/task-lists/{task_list_id}/tasks/{task_id}` | Update a task |
+| DELETE | `/task-lists/{task_list_id}/tasks/{task_id}` | Delete a task |
 
 ---
 
-Built as part of backend engineering practice, focused on core Spring Boot concepts: dependency injection, JPA entity relationships, REST API design, and clean layered architecture.
+## Running the Application
+
+### Option A: Embedded React UI (Fastest — No Node.js Needed)
+
+1. Start the backend with the `h2` profile:
+   ```bash
+   # On Windows PowerShell
+   .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=h2"
+
+   # On Linux/macOS
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+   ```
+
+2. Open your browser to:
+   **[http://localhost:8080](http://localhost:8080)**
+
+*(If you prefer PostgreSQL, start Docker with `docker compose up -d` and run `./mvnw spring-boot:run` without the h2 profile).*
+
+---
+
+### Option B: Standalone Vite + React Frontend Dev Server
+
+1. Start the Spring Boot backend on port 8080 as shown above.
+2. In a separate terminal, run the React frontend:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+3. Open **[http://localhost:5173](http://localhost:5173)** in your browser.

@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Data & Frontend ###
+data/
+*.mv.db
+**/node_modules/
+**/dist/
+.DS_Store
